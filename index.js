@@ -6,6 +6,10 @@ const fs = require('fs');
 const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, {polling: true});
 const translate = new Translate();
 
+console.log('Printing env variables:');
+console.log(`TELEGRAM_BOT_TOKEN: ${process.env.TELEGRAM_BOT_TOKEN}`);
+console.log(`GOOGLE_APPLICATION_CREDENTIALS: ${process.env.GOOGLE_APPLICATION_CREDENTIALS}`);
+
 async function translateMsg(msg, event) {
 	fs.appendFile('app.log', `\n${new Date()}: ${event}: ${JSON.stringify(msg)}`, (e) => {
 		if (e) throw new Error(e);
