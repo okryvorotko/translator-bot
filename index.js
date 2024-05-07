@@ -10,9 +10,14 @@ console.log('Printing env variables:');
 console.log(`TELEGRAM_BOT_TOKEN: ${process.env.TELEGRAM_BOT_TOKEN}`);
 console.log(`GOOGLE_APPLICATION_CREDENTIALS: ${process.env.GOOGLE_APPLICATION_CREDENTIALS}`);
 
+bot.on("polling_error", (msg) => {
+	console.log(msg);
+	throw new Error(msg);
+});
+
 async function translateMsg(msg, event) {
 	fs.appendFile('app.log', `\n${new Date()}: ${event}: ${JSON.stringify(msg)}`, (e) => {
-		if (e) throw new Error(e);
+		if (e) console.log(e);
 	});
 	const chatId = msg.chat.id;
 	const fromId = msg.from.id;
@@ -45,9 +50,8 @@ bot.on('message', async (msg) => {
 		bot.sendMessage(chatId, translatedMsg, options);
 	} catch (e) {
 		fs.appendFile('app.log', `\n${new Date()}: Error: ${JSON.stringify(e)}`, (e) => {
-			if (e) throw new Error(e);
+			if (e) console.log(e);
 		});
-		throw new Error(e);
 	}
 });
 
@@ -60,8 +64,7 @@ bot.on('edited_message', async (msg) => {
 		bot.sendMessage(chatId, `Edited: ${translatedMsg}`, options);
 	} catch (e) {
 		fs.appendFile('app.log', `\n${new Date()}: Error: ${JSON.stringify(e)}`, (e) => {
-			if (e) throw new Error(e);
+			if (e) console.log(e);
 		});
-		throw new Error(e);
 	}
 });
