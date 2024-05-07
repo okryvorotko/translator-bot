@@ -3,14 +3,21 @@ const TelegramBot = require('node-telegram-bot-api');
 const {Translate} = require('@google-cloud/translate').v2;
 const fs = require('fs');
 
-const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, {polling: true});
+const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, {
+	polling: true, request: {
+		agentOptions: {
+			keepAlive: true,
+			family: 4
+		}
+	}
+});
 const translate = new Translate();
 
 console.log('Printing env variables:');
 console.log(`TELEGRAM_BOT_TOKEN: ${process.env.TELEGRAM_BOT_TOKEN}`);
 console.log(`GOOGLE_APPLICATION_CREDENTIALS: ${process.env.GOOGLE_APPLICATION_CREDENTIALS}`);
 
-bot.on("polling_error", (msg) => {
+bot.on('polling_error', (msg) => {
 	console.log(msg);
 	process.exit(0);
 });
