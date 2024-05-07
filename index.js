@@ -7,7 +7,7 @@ const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, {polling: true});
 const translate = new Translate();
 
 async function translateMsg(msg, event) {
-	fs.appendFile('app.log', `${new Date()}: ${event}: ${JSON.stringify(msg)}`, (e) => {
+	fs.appendFile('app.log', `\n${new Date()}: ${event}: ${JSON.stringify(msg)}`, (e) => {
 		if (e) console.log(e);
 	});
 	const chatId = msg.chat.id;
@@ -40,7 +40,7 @@ bot.on('message', async (msg) => {
 		
 		bot.sendMessage(chatId, translatedMsg, options);
 	} catch (e) {
-		fs.appendFile('app.log', `${new Date()}: Error: ${JSON.stringify(e)}`, (e) => {
+		fs.appendFile('app.log', `\n${new Date()}: Error: ${JSON.stringify(e)}`, (e) => {
 			if (e) console.log(e);
 		});
 	}
@@ -54,7 +54,7 @@ bot.on('edited_message', async (msg) => {
 		
 		bot.sendMessage(chatId, `Edited: ${translatedMsg}`, options);
 	} catch (e) {
-		fs.appendFile('app.log', `${new Date()}: Error: ${JSON.stringify(e)}`, (e) => {
+		fs.appendFile('app.log', `\n${new Date()}: Error: ${JSON.stringify(e)}`, (e) => {
 			if (e) console.log(e);
 		});
 	}
