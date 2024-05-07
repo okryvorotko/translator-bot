@@ -42,6 +42,7 @@ jobs:
       - name: Start the app
         uses: appleboy/ssh-action@master
         continue-on-error: true
+        timeout-minutes: 2
         with:
           host: ${{ secrets.HOST_DNS }}
           username: ${{ secrets.USERNAME }}
