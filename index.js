@@ -12,7 +12,7 @@ console.log(`GOOGLE_APPLICATION_CREDENTIALS: ${process.env.GOOGLE_APPLICATION_CR
 
 bot.on("polling_error", (msg) => {
 	console.log(msg);
-	throw new Error(msg);
+	process.exit(0);
 });
 
 async function translateMsg(msg, event) {
