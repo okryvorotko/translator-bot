@@ -13,14 +13,7 @@ const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, {
 });
 const translate = new Translate();
 
-console.log('Printing env variables:');
-console.log(`TELEGRAM_BOT_TOKEN: ${process.env.TELEGRAM_BOT_TOKEN}`);
-console.log(`GOOGLE_APPLICATION_CREDENTIALS: ${process.env.GOOGLE_APPLICATION_CREDENTIALS}`);
-
-bot.on('polling_error', (msg) => {
-	console.log(msg);
-	process.exit(0);
-});
+console.log('Telegram translator bot started');
 
 async function translateMsg(msg, event) {
 	fs.appendFile('app.log', `\n${new Date()}: ${event}: ${JSON.stringify(msg)}`, (e) => {

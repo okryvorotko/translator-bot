@@ -27,6 +27,9 @@ jobs:
           script: |
             cd /home/ec2-user/translator-bot
             rm -rf *
+
+      - name: Terminate existing Node.js processes
+        run: pkill -f node
             
       - name: Deploy to Server
         uses: easingthemes/ssh-deploy@v2.1.5
@@ -38,6 +41,7 @@ jobs:
 
       - name: Start the app
         uses: appleboy/ssh-action@master
+        continue-on-error: true
         with:
           host: ${{ secrets.HOST_DNS }}
           username: ${{ secrets.USERNAME }}
