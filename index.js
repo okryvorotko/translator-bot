@@ -43,6 +43,7 @@ bot.on('message', async (msg) => {
 		fs.appendFile('app.log', `\n${new Date()}: Error: ${JSON.stringify(e)}`, (e) => {
 			if (e) console.log(e);
 		});
+		throw new Error(e);
 	}
 });
 
@@ -57,5 +58,6 @@ bot.on('edited_message', async (msg) => {
 		fs.appendFile('app.log', `\n${new Date()}: Error: ${JSON.stringify(e)}`, (e) => {
 			if (e) console.log(e);
 		});
+		throw new Error(e);
 	}
 });
