@@ -47,8 +47,6 @@ jobs:
           host: ${{ secrets.HOST_DNS }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          GOOGLE_APPLICATION_CREDENTIALS: "/home/ec2-user/google-translator-api-credentials.json"
           script: |
-              cd /home/ec2-user/translator-bot
-              node index.js
+            cd /home/ec2-user/translator-bot
+            TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }} GOOGLE_APPLICATION_CREDENTIALS="/home/ec2-user/google-translator-api-credentials.json" node index.js
