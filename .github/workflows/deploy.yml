@@ -18,7 +18,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '16'
+          node-version: '22'
 
       - name: Install Dependencies
         run: npm i
@@ -51,5 +51,4 @@ jobs:
           GOOGLE_APPLICATION_CREDENTIALS: "/home/ec2-user/google-translator-api-credentials.json"
           script: |
               cd /home/ec2-user/translator-bot
-              npm install
               node index.js
