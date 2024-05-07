@@ -8,7 +8,7 @@ const translate = new Translate();
 
 async function translateMsg(msg, event) {
 	fs.appendFile('app.log', `\n${new Date()}: ${event}: ${JSON.stringify(msg)}`, (e) => {
-		if (e) console.log(e);
+		if (e) throw new Error(e);
 	});
 	const chatId = msg.chat.id;
 	const fromId = msg.from.id;
@@ -41,7 +41,7 @@ bot.on('message', async (msg) => {
 		bot.sendMessage(chatId, translatedMsg, options);
 	} catch (e) {
 		fs.appendFile('app.log', `\n${new Date()}: Error: ${JSON.stringify(e)}`, (e) => {
-			if (e) console.log(e);
+			if (e) throw new Error(e);
 		});
 		throw new Error(e);
 	}
@@ -56,7 +56,7 @@ bot.on('edited_message', async (msg) => {
 		bot.sendMessage(chatId, `Edited: ${translatedMsg}`, options);
 	} catch (e) {
 		fs.appendFile('app.log', `\n${new Date()}: Error: ${JSON.stringify(e)}`, (e) => {
-			if (e) console.log(e);
+			if (e) throw new Error(e);
 		});
 		throw new Error(e);
 	}
