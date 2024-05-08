@@ -13,6 +13,7 @@ const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, {
 });
 const translate = new Translate();
 
+// TODO make it private
 console.log('Telegram translator bot started');
 
 async function translateMsg(msg, event) {

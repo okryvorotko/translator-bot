@@ -49,4 +49,4 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             cd /home/ec2-user/translator-bot
-            TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }} GOOGLE_APPLICATION_CREDENTIALS="/home/ec2-user/google-translator-api-credentials.json" node index.js
+            TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }} GOOGLE_APPLICATION_CREDENTIALS="/home/ec2-user/google-translator-api-credentials.json" node index.js > output.log 2> error.log
