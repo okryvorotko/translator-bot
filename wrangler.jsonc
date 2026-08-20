@@ -1,8 +1,17 @@
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "telegram-translator-bot",
-  "main": "src/worker.js",
-  "compatibility_date": "2026-08-20",
-  "workers_dev": true,
-  "observability": { "enabled": true }
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "telegram-translator-bot",
+	"main": "src/worker.js",
+	"compatibility_date": "2026-08-20",
+	"workers_dev": true,
+	"kv_namespaces": [
+		{
+			"binding": "MESSAGE_MAPPINGS",
+			"id": "b1942719618746b0b069533bf41d35b0",
+			"remote": true
+		}
+	],
+	"observability": {
+		"enabled": true
+	}
 }

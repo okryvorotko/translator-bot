@@ -57,16 +57,30 @@ export async function handleUpdate(update, env) {
 
   const targetLanguage = containsThai(message.text) ? "en" : "th";
   const translation = await translateText(message.text, targetLanguage, env.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS_BASE64);
-  const chunks = splitMessage(`${update.edited_message ? "Edited: " : ""}${translation}`);
+  const chunks = splitMessage(translation);
+  const mappingKey = `${message.chat.id}:${message.message_id}`;
 
+  if (update.edited_message) {
+    const previousMessageIds = await env.MESSAGE_MAPPINGS.get(mappingKey, "json");
+    for (const translatedMessageId of previousMessageIds ?? []) {
+      await deleteTelegramMessage(env.TELEGRAM_BOT_TOKEN, message.chat.id, translatedMessageId);
+    }
+  }
+
+  const translatedMessageIds = [];
   for (let index = 0; index < chunks.length; index += 1) {
-    await sendTelegramMessage(
+    const sentMessage = await sendTelegramMessage(
       env.TELEGRAM_BOT_TOKEN,
       message.chat.id,
       chunks[index],
       index === 0 ? message.message_id : undefined,
     );
+    translatedMessageIds.push(sentMessage.message_id);
   }
+
+  await env.MESSAGE_MAPPINGS.put(mappingKey, JSON.stringify(translatedMessageIds), {
+    expirationTtl: 60 * 60 * 24 * 30,
+  });
 }
 
 export function containsThai(text) {
@@ -197,6 +211,19 @@ async function sendTelegramMessage(botToken, chatId, text, replyToMessageId) {
   if (!response.ok || !result.ok) {
     throw new Error(`Telegram API returned ${response.status}: ${result?.description ?? "unknown error"}`);
   }
+  return result.result;
+}
+
+async function deleteTelegramMessage(botToken, chatId, messageId) {
+  const response = await fetch(`${TELEGRAM_API}/bot${botToken}/deleteMessage`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ chat_id: chatId, message_id: messageId }),
+  });
+  const result = await response.json();
+  if (!response.ok || !result.ok) {
+    throw new Error(`Telegram deleteMessage returned ${response.status}: ${result?.description ?? "unknown error"}`);
+  }
 }
 
 function decodeHtmlEntities(text) {
@@ -209,7 +236,7 @@ function decodeHtmlEntities(text) {
 }
 
 function validateEnvironment(env) {
-  const missing = ["TELEGRAM_BOT_TOKEN", "TELEGRAM_WEBHOOK_SECRET", "GOOGLE_SERVICE_ACCOUNT_CREDENTIALS_BASE64"]
+  const missing = ["TELEGRAM_BOT_TOKEN", "TELEGRAM_WEBHOOK_SECRET", "GOOGLE_SERVICE_ACCOUNT_CREDENTIALS_BASE64", "MESSAGE_MAPPINGS"]
     .filter((name) => !env[name]);
   return missing.length ? `Missing Worker secrets: ${missing.join(", ")}` : null;
 }

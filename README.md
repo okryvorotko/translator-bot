@@ -46,9 +46,13 @@ npx wrangler login
 npx wrangler secret put TELEGRAM_BOT_TOKEN
 npx wrangler secret put TELEGRAM_WEBHOOK_SECRET
 npx wrangler secret put GOOGLE_SERVICE_ACCOUNT_CREDENTIALS_BASE64
+npx wrangler kv namespace create MESSAGE_MAPPINGS
 npm test
 npm run deploy
 ```
+
+Copy the namespace ID printed by the KV command into the `MESSAGE_MAPPINGS`
+entry in `wrangler.jsonc`, replacing `REPLACE_WITH_KV_NAMESPACE_ID` before deploying.
 
 Wrangler prints a URL similar to:
 
@@ -124,7 +128,7 @@ View production logs with `npx wrangler tail`.
 - Google `401`/`403`: the service-account key was disabled, Translation is not enabled, billing is disabled, or the service account lacks access.
 - Private chat works but a group does not: check BotFather Privacy Mode or make the bot an administrator.
 - Pending updates or a last webhook error: inspect `getWebhookInfo` and `wrangler tail`.
-- An edited message creates a new `Edited:` reply. Replacing the old translation requires persistent message-ID storage and is intentionally not part of this stateless deployment.
+- When a message is edited, the Worker deletes its previous translated reply and posts a fresh translation. The source-to-translation mapping is retained in Workers KV for 30 days. Telegram may refuse deletion of messages older than its permitted deletion window.
 
 ## Removing or replacing the deployment
 
@@ -135,4 +139,3 @@ curl "https://api.telegram.org/bot<BOT_TOKEN>/deleteWebhook?drop_pending_updates
 ```
 
 Then, if desired, delete the Worker with `npx wrangler delete`.
- 
