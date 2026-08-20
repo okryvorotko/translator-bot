@@ -135,3 +135,4 @@ curl "https://api.telegram.org/bot<BOT_TOKEN>/deleteWebhook?drop_pending_updates
 ```
 
 Then, if desired, delete the Worker with `npx wrangler delete`.
+ 
