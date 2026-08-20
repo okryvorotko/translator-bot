@@ -1,52 +1,54 @@
-name: Deploy to EC2
+name: Deploy Cloudflare Worker
 
 on:
   push:
-    branches:
-      - master
+    branches: [master, main]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: cloudflare-production
+  cancel-in-progress: false
+
 jobs:
-  deploy:
-    name: Deploy to EC2
+  test-and-deploy:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout the files
-        uses: actions/checkout@v3
-
-      - name: Install Dependencies
-        run: npm i
-
-      - name: Cleanup
-        uses: appleboy/ssh-action@master
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          host: ${{ secrets.HOST_DNS }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            cd /home/ec2-user/translator-bot
-            rm -rf *
-
-      - name: Terminate existing Node.js processes
-        run: sudo pkill -f node
-            
-      - name: Deploy to Server
-        uses: easingthemes/ssh-deploy@v2.1.5
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Run tests
+        run: npm test
+      - name: Deploy Worker and update secrets
+        id: deploy
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy
+          secrets: |
+            TELEGRAM_BOT_TOKEN
+            TELEGRAM_WEBHOOK_SECRET
+            GOOGLE_SERVICE_ACCOUNT_CREDENTIALS_BASE64
         env:
-          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
-          REMOTE_HOST: ${{ secrets.HOST_DNS }}
-          REMOTE_USER: ${{ secrets.USERNAME }}
-          TARGET: "/home/ec2-user/translator-bot"
-
-      - name: Start the app
-        uses: appleboy/ssh-action@master
-        continue-on-error: true
-        timeout-minutes: 2
-        with:
-          host: ${{ secrets.HOST_DNS }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            cd /home/ec2-user/translator-bot
-            TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }} GOOGLE_APPLICATION_CREDENTIALS="/home/ec2-user/google-translator-api-credentials.json" node index.js > output.log 2> error.log
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_WEBHOOK_SECRET: ${{ secrets.TELEGRAM_WEBHOOK_SECRET }}
+          GOOGLE_SERVICE_ACCOUNT_CREDENTIALS_BASE64: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS_BASE64 }}
+      - name: Register Telegram webhook
+        env:
+          BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          WEBHOOK_SECRET: ${{ secrets.TELEGRAM_WEBHOOK_SECRET }}
+          WORKER_URL: ${{ steps.deploy.outputs.deployment-url }}
+        run: |
+          curl --fail-with-body --silent --show-error \
+            --request POST "https://api.telegram.org/bot${BOT_TOKEN}/setWebhook" \
+            --header "Content-Type: application/json" \
+            --data "$(jq -n --arg url "$WORKER_URL" --arg secret "$WEBHOOK_SECRET" '{url: $url, secret_token: $secret, allowed_updates: ["message", "edited_message"]}')"

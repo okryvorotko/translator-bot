@@ -1,17 +1,18 @@
 {
   "name": "translator-bot",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Thai-English Telegram translator deployed as a Cloudflare Worker",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "test": "node --test"
   },
   "keywords": [],
   "author": "Oleksandr Kryvorotko",
   "license": "ISC",
-  "dependencies": {
-    "@google-cloud/translate": "^8.2.0",
-    "dotenv": "^16.4.5",
-    "node-telegram-bot-api": "^0.65.1"
+  "devDependencies": {
+    "wrangler": "^4.32.0"
   }
 }

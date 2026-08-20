@@ -1,4 +1,7 @@
-package-lock.json
 node_modules
 .env
 .idea
+.dev.vars
+.wrangler
+.npm-cache
+.project-clutter/
