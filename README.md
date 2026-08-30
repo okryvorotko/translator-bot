@@ -86,7 +86,7 @@ To translate every ordinary group message, make the bot a group administrator or
 
 ## Automatic deployment with GitHub Actions
 
-`.github/workflows/deploy.yml` tests and deploys pushes to `main` or `master`. It replaces the former EC2 SSH deployment.
+`.github/workflows/deploy.yml` tests and deploys pushes to `main` or `master`. It replaces the former EC2 SSH deployment. `.github/workflows/terminate.yml` is a manual action that removes the Telegram webhook, discards pending updates, and deletes the Cloudflare Worker. Both workflows only run when triggered by the repository owner.
 
 In GitHub, open **Settings → Secrets and variables → Actions** and add these repository secrets:
 
@@ -100,7 +100,9 @@ In GitHub, open **Settings → Secrets and variables → Actions** and add these
 
 Create the Cloudflare token from **My Profile → API Tokens → Create Token → Custom token** and limit it to the relevant account. GitHub Actions copies the runtime secrets into Cloudflare; they are never placed in `wrangler.jsonc`.
 
-Push the repository, or open **Actions → Deploy Cloudflare Worker → Run workflow**. The action obtains the deployed URL and registers it with Telegram automatically. Review the log and check `getWebhookInfo` afterward.
+To turn the bot on, push the repository or open **Actions → Deploy Cloudflare Worker → Run workflow**. The action obtains the deployed URL and registers it with Telegram automatically. Review the log and check `getWebhookInfo` afterward.
+
+To turn the bot off, open **Actions → Turn Off Telegram Bot → Run workflow**. Turning it on again redeploys the Worker and restores the Telegram webhook.
 
 ## Local development
 
