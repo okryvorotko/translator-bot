@@ -100,7 +100,7 @@ In GitHub, open **Settings → Secrets and variables → Actions** and add these
 
 Create the Cloudflare token from **My Profile → API Tokens → Create Token → Custom token** and limit it to the relevant account. GitHub Actions copies the runtime secrets into Cloudflare; they are never placed in `wrangler.jsonc`.
 
-To turn the bot on, push the repository or open **Actions → Deploy Cloudflare Worker → Run workflow**. The action obtains the deployed URL and registers it with Telegram automatically. Review the log and check `getWebhookInfo` afterward.
+To turn the bot on, push the repository or open **Actions → Deploy Cloudflare Worker → Run workflow**. The action discards pending Telegram updates, obtains the deployed URL, and registers it with Telegram automatically. Messages sent while the bot is unavailable are intentionally not replayed after deployment. Review the log and check `getWebhookInfo` afterward.
 
 To turn the bot off, open **Actions → Turn Off Telegram Bot → Run workflow**. Turning it on again redeploys the Worker and restores the Telegram webhook.
 
